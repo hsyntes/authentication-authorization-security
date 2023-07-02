@@ -1,6 +1,6 @@
 # Authentication & Authorization & Security
 
-This README provides an overview of the authentication, authorization, and security considerations for a back-end application written with Node.js, Express.js, mongoDB and mongoose. These components are widely used in building web applications and require careful attention to ensure the safety and integrity of user data.
+An overview of the authentication, authorization and security considerations for a back-end application written with Node.js, Express.js mongoDB and mongoose. These components are widely used in building web applications and require careful attention to ensure the safety and integrity of user data.
 
 ## Features
 
