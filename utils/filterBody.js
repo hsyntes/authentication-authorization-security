@@ -1,4 +1,4 @@
-module.exports = (body, ...allowedFields) => {
+module.exports = (body, allowedFields) => {
   const newBody = {};
 
   Object.keys(body).forEach((key) => {

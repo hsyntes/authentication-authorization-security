@@ -105,12 +105,21 @@ exports.updateMe = async (req, res, next) => {
         new ErrorProvider(400, "fail", "You cannot update these fields.")
       );
 
-    const filteredBody = filterBody(
-      req.body,
+    const filteredBody = filterBody(req.body, [
       "firstname",
       "lastname",
-      "birthDate"
-    );
+      "birthDate",
+    ]);
+
+    for (const key of Object.keys(req.body))
+      if (!Object.keys(filteredBody).includes(key))
+        return next(
+          new ErrorProvider(
+            400,
+            "fail",
+            "You are not allowed to update this/these field(s)."
+          )
+        );
 
     const user = await User.findByIdAndUpdate(req.user._id, filteredBody, {
       new: true,
