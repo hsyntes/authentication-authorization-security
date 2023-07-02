@@ -206,7 +206,7 @@ Install dependencies
   npm install
 ```
 
-Start the server on develeopment environment
+Start the server on **development** environment
 
 ```bash
   npm start
