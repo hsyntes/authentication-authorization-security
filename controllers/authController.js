@@ -200,6 +200,22 @@ exports.verifyToken = async (req, res, next) => {
   }
 };
 
+exports.restrict =
+  (...roles) =>
+  (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ErrorProvider(
+          403,
+          "fail",
+          "You do not have permission to perform this action"
+        )
+      );
+    }
+
+    next();
+  };
+
 exports.updatePassword = async (req, res, next) => {
   try {
     if (!req.body.currentPassword)

@@ -9,12 +9,12 @@ const {
   updatePassword,
   forgotPassword,
   resetPassword,
+  restrict,
 } = require("../controllers/authController");
 
 const router = express.Router();
 
 router.route("/").get(getUsers);
-router.route("/:username").get(getUser);
 
 router.post("/signup", signup);
 router.post("/login", login);
@@ -23,6 +23,10 @@ router.patch("/reset-password/:passwordResetToken", resetPassword);
 
 router.use(verifyToken);
 // * Protect after this
+
+router
+  .route("/:username")
+  .get(restrict("admin", "lead-guide", "user", "guide"), getUser);
 
 router.patch("/update-password", updatePassword);
 router.delete("/deactivate", deactivate);

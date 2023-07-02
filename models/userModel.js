@@ -65,6 +65,12 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetTokenExpiresIn: Date,
 
+    role: {
+      type: String,
+      enum: ["user", "guide", "lead-guide", "admin"],
+      default: "user",
+    },
+
     active: {
       type: Boolean,
       default: true,
