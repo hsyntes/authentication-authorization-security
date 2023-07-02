@@ -30,7 +30,7 @@ router.use(verifyToken);
 // * Protect after this
 
 router
-  .route("/:username")
+  .route("/username/:username")
   .get(restrict("admin", "lead-guide", "user", "guide"), getUser);
 
 router.patch("/update-password", updatePassword);

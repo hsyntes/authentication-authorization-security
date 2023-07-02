@@ -99,26 +99,33 @@ exports.deactivateMe = async (req, res, next) => {
 };
 
 exports.updateMe = async (req, res, next) => {
-  if (req.body.password || req.body.passwordConfirm || role)
-    return next(new ErrorProvider(400, "You cannot update these fields."));
+  try {
+    if (req.body.password || req.body.passwordConfirm || req.body.role)
+      return next(
+        new ErrorProvider(400, "fail", "You cannot update these fields.")
+      );
 
-  const filteredBody = filterBody(req.body, [
-    "firstname",
-    "lastname",
-    "birthDate",
-  ]);
+    const filteredBody = filterBody(
+      req.body,
+      "firstname",
+      "lastname",
+      "birthDate"
+    );
 
-  const user = await User.findByIdAndUpdate(req.user.id, filteredBody, {
-    new: true,
-    runValidators: true,
-  });
+    const user = await User.findByIdAndUpdate(req.user._id, filteredBody, {
+      new: true,
+      runValidators: true,
+    });
 
-  res.status(201).json({
-    status: "success",
-    data: {
-      user,
-    },
-  });
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  } catch (e) {
+    next(e);
+  }
 };
 
 exports.deleteMe = async (req, res, next) => {
