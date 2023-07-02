@@ -27,6 +27,7 @@ router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:passwordResetToken", resetPassword);
 
 router.use(verifyToken);
+
 // * Protect after this
 
 router
