@@ -61,6 +61,9 @@ exports.login = async (req, res, next) => {
 
     let user;
 
+    if (!user)
+      return next(new ErrorProvider(404, "fail", "That user doesn't exist."));
+
     if (email.includes("@"))
       user = await User.findOne({ email }).select("+password");
     else user = await User.findOne({ username: email }).select("+password");
