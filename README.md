@@ -34,7 +34,10 @@ Provide a secure login mechanism using sessions or tokens. Validate user credent
 ## Password Reset
 
 Offer a secure password reset functionality that involves verifying the user's identity through a password reset email or other verification methods.
-Authentication Middleware: Use middleware to authenticate requests. This middleware should check for valid authentication tokens, verify session cookies, or implement other authentication mechanisms.
+
+## Authentication Middleware
+
+Use middleware to authenticate requests. This middleware should check for valid authentication tokens, verify session cookies, or implement other authentication mechanisms.
 
 ## Authorization
 
@@ -70,7 +73,7 @@ Implement secure session management to track user sessions and prevent session-r
 
 ### Error Handling
 
-Handle errors securely to avoid information leakage and potential vulnerabilities. Follow these best practices for error handling:
+Handle errors securely to avoid information leakage and potential vulnerabilities. Follow these best practices for error handling
 
 #### Avoid Detailed Error Messages
 
