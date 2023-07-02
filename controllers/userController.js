@@ -1,5 +1,6 @@
 const ErrorProvider = require("../classes/ErrorProvider");
 const User = require("../models/userModel");
+const filterBody = require("../utils/filterBody");
 
 exports.getUsers = async (req, res, next) => {
   try {
@@ -63,6 +64,84 @@ exports.getUser = async (req, res, next) => {
       data: {
         user,
       },
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.deactivateMe = async (req, res, next) => {
+  try {
+    if (!req.body.currentPassword)
+      return next(
+        new ErrorProvider(403, "fail", "Please confirm your password.")
+      );
+
+    if (
+      !(await req.user.isPasswordCorrect(
+        req.body.currentPassword,
+        req.user.password
+      ))
+    )
+      return next(new ErrorProvider(401, "fail", "Wrong password."));
+
+    req.user.active = false;
+
+    await req.user.save({ validateBeforeSave: false });
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+exports.updateMe = async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm || role)
+    return next(new ErrorProvider(400, "You cannot update these fields."));
+
+  const filteredBody = filterBody(req.body, [
+    "firstname",
+    "lastname",
+    "birthDate",
+  ]);
+
+  const user = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(201).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+};
+
+exports.deleteMe = async (req, res, next) => {
+  try {
+    if (!req.body.currentPassword)
+      return next(
+        new ErrorProvider(403, "fail", "Please confirm your password.")
+      );
+
+    if (
+      !(await req.user.isPasswordCorrect(
+        req.body.currentPassword,
+        req.user.password
+      ))
+    )
+      return next(new ErrorProvider(401, "fail", "Wrong password."));
+
+    await User.findByIdAndDelete(req.user._id);
+
+    res.status(204).json({
+      status: "success",
+
+      data: null,
     });
   } catch (e) {
     next(e);

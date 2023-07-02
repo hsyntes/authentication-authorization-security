@@ -166,12 +166,22 @@ Error Reporting and Monitoring: Set up error reporting and monitoring tools to t
 #### Close Account
 
 ```http
-  DELETE /api/v1/users/close/
+  DELETE /api/v1/users/delete/
 ```
 
 | Parameter | Type     | Description                  |
 | :-------- | :------- | :--------------------------- |
 | `close/`  | `string` | **Required** verifying token |
+
+#### Update
+
+```http
+  PATCH /api/v1/users/delete/
+```
+
+| Parameter | Type     | Description                  |
+| :-------- | :------- | :--------------------------- |
+| `update/` | `string` | **Required** verifying token |
 
 ## Run Locally
 

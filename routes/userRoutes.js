@@ -1,11 +1,16 @@
 const express = require("express");
-const { getUsers, getUser } = require("../controllers/userController");
+const {
+  getUsers,
+  getUser,
+  deleteMe,
+  deactivateMe,
+  updateMe,
+} = require("../controllers/userController");
+
 const {
   signup,
   login,
-  deactivate,
   verifyToken,
-  close,
   updatePassword,
   forgotPassword,
   resetPassword,
@@ -29,7 +34,8 @@ router
   .get(restrict("admin", "lead-guide", "user", "guide"), getUser);
 
 router.patch("/update-password", updatePassword);
-router.delete("/deactivate", deactivate);
-router.delete("/close", close);
+router.patch("/update", updateMe);
+router.delete("/deactivate", deactivateMe);
+router.delete("/delete", deleteMe);
 
 module.exports = router;

@@ -200,6 +200,7 @@ exports.verifyToken = async (req, res, next) => {
   }
 };
 
+// role-based access control
 exports.restrict =
   (...roles) =>
   (req, res, next) => {
@@ -252,57 +253,57 @@ exports.updatePassword = async (req, res, next) => {
   } catch (e) {}
 };
 
-exports.deactivate = async (req, res, next) => {
-  try {
-    if (!req.body.currentPassword)
-      return next(
-        new ErrorProvider(403, "fail", "Please confirm your password.")
-      );
+// exports.deactivate = async (req, res, next) => {
+//   try {
+//     if (!req.body.currentPassword)
+//       return next(
+//         new ErrorProvider(403, "fail", "Please confirm your password.")
+//       );
 
-    if (
-      !(await req.user.isPasswordCorrect(
-        req.body.currentPassword,
-        req.user.password
-      ))
-    )
-      return next(new ErrorProvider(401, "fail", "Wrong password."));
+//     if (
+//       !(await req.user.isPasswordCorrect(
+//         req.body.currentPassword,
+//         req.user.password
+//       ))
+//     )
+//       return next(new ErrorProvider(401, "fail", "Wrong password."));
 
-    req.user.active = false;
+//     req.user.active = false;
 
-    await req.user.save({ validateBeforeSave: false });
+//     await req.user.save({ validateBeforeSave: false });
 
-    res.status(204).json({
-      status: "success",
-      data: null,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
+//     res.status(204).json({
+//       status: "success",
+//       data: null,
+//     });
+//   } catch (e) {
+//     next(e);
+//   }
+// };
 
-exports.close = async (req, res, next) => {
-  try {
-    if (!req.body.currentPassword)
-      return next(
-        new ErrorProvider(403, "fail", "Please confirm your password.")
-      );
+// exports.close = async (req, res, next) => {
+//   try {
+//     if (!req.body.currentPassword)
+//       return next(
+//         new ErrorProvider(403, "fail", "Please confirm your password.")
+//       );
 
-    if (
-      !(await req.user.isPasswordCorrect(
-        req.body.currentPassword,
-        req.user.password
-      ))
-    )
-      return next(new ErrorProvider(401, "fail", "Wrong password."));
+//     if (
+//       !(await req.user.isPasswordCorrect(
+//         req.body.currentPassword,
+//         req.user.password
+//       ))
+//     )
+//       return next(new ErrorProvider(401, "fail", "Wrong password."));
 
-    await User.findByIdAndDelete(req.user._id);
+//     await User.findByIdAndDelete(req.user._id);
 
-    res.status(204).json({
-      status: "success",
+//     res.status(204).json({
+//       status: "success",
 
-      data: null,
-    });
-  } catch (e) {
-    next(e);
-  }
-};
+//       data: null,
+//     });
+//   } catch (e) {
+//     next(e);
+//   }
+// };
