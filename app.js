@@ -3,9 +3,10 @@ const ErrorProvider = require("./classes/ErrorProvider");
 const userRoutes = require("./routes/userRoutes");
 const errorController = require("./controllers/errorController");
 const helmet = require("helmet");
-const expressRateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 const xss = require("xss-clean");
-// const hpp = require("hpp");
+const expressRateLimit = require("express-rate-limit");
+const expressMongoSanitize = require("express-mongo-sanitize");
 
 const app = express();
 
@@ -27,6 +28,8 @@ app.use((req, res, next) => {
 });
 app.use(helmet());
 app.use(xss());
+app.use(hpp());
+app.use(expressMongoSanitize());
 app.use("/api/v1/users", userRoutes);
 app.all("*", (req, res, next) =>
   next(new ErrorProvider(404, "fail", `Unsupprted URL: ${req.originalUrl}`))
