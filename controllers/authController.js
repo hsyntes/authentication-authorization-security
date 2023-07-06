@@ -5,10 +5,12 @@ const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
 
 const sendToken = (res, statusCode, user) => {
+  // * Generate token
   const token = jsonwebtoken.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+  // * Save the token cookie
   res.cookie("jsonwebtoken", token, {
     expires: new Date(
       Date.now() + parseInt(process.env.JWT_EXPIRES_IN) * 24 * 60 * 60 * 1000
@@ -17,6 +19,7 @@ const sendToken = (res, statusCode, user) => {
     secure: true,
   });
 
+  // * Removing sensetive or unneccessary data from the response object
   user.password = undefined;
   user.active = undefined;
 
@@ -30,6 +33,7 @@ const sendToken = (res, statusCode, user) => {
 
 exports.signup = async (req, res, next) => {
   try {
+    // * Creating user
     const user = await User.create({
       firstname: req.body.firstname,
       lastname: req.body.lastname,
@@ -64,6 +68,7 @@ exports.login = async (req, res, next) => {
     if (!user)
       return next(new ErrorProvider(404, "fail", "That user doesn't exist."));
 
+    // * Allow both email and username to log in
     if (email.includes("@"))
       user = await User.findOne({ email }).select("+password");
     else user = await User.findOne({ username: email }).select("+password");
@@ -71,8 +76,10 @@ exports.login = async (req, res, next) => {
     if (!(await user.isPasswordCorrect(req.body.password, user.password)))
       return next(new ErrorProvider(401, "fail", "Email or password wrong."));
 
+    // * If the user's status not active, activate it
     user.active = true;
 
+    // * Saving on the document as well
     await user.save({ validateBeforeSave: false });
 
     sendToken(res, 200, user);
@@ -96,6 +103,7 @@ exports.forgotPassword = async (req, res, next) => {
     const passwordResetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
+    // * Sending email with reset link
     try {
       const passwordResetLink = `${req.protocol}://${req.get(
         "host"
@@ -132,6 +140,8 @@ exports.forgotPassword = async (req, res, next) => {
 
 exports.resetPassword = async (req, res, next) => {
   try {
+    // * Hash the token which is come from params (url) and
+    // * not hashed
     const passwordResetToken = crypto
       .createHash("sha256")
       .update(req.params.passwordResetToken)
@@ -155,6 +165,7 @@ exports.resetPassword = async (req, res, next) => {
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
 
+    // * Remove the sensetive or unneccessary data from the document
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpiresIn = undefined;
 
@@ -185,6 +196,7 @@ exports.verifyToken = async (req, res, next) => {
         )
       );
 
+    // * Verifying token
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
 
     const currentUser = await User.findById(decoded.id).select("+password");
@@ -203,7 +215,7 @@ exports.verifyToken = async (req, res, next) => {
   }
 };
 
-// role-based access control
+// * Role-based access control
 exports.restrict =
   (...roles) =>
   (req, res, next) => {

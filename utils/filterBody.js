@@ -1,3 +1,5 @@
+// * Filtering req.body to allow or not allowed to update
+
 module.exports = (body, allowedFields) => {
   const newBody = {};
 

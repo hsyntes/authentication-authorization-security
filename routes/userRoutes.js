@@ -19,6 +19,8 @@ const {
 
 const router = express.Router();
 
+// * URL (API) end points
+
 router.route("/").get(getUsers);
 
 router.post("/signup", signup);

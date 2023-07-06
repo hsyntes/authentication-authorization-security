@@ -3,6 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
+// * Mongoose Schema Structure
 const userSchema = new mongoose.Schema(
   {
     firstname: {
@@ -101,6 +102,7 @@ userSchema.pre("find", function (next) {
 userSchema.methods.isPasswordCorrect = async (candidate, password) =>
   await bcrypt.compare(candidate, password);
 
+// * Generating token to reset password
 userSchema.methods.createPasswordResetToken = function () {
   const passwordResetToken = crypto.randomBytes(32).toString("hex");
 

@@ -98,6 +98,7 @@ exports.deactivateMe = async (req, res, next) => {
   }
 };
 
+// * Updating the current user according to the current user
 exports.updateMe = async (req, res, next) => {
   try {
     if (req.body.password || req.body.passwordConfirm || req.body.role)
@@ -111,6 +112,7 @@ exports.updateMe = async (req, res, next) => {
       "birthDate",
     ]);
 
+    // * Updating is allowed or not allowed
     for (const key of Object.keys(req.body))
       if (!Object.keys(filteredBody).includes(key))
         return next(
@@ -137,6 +139,7 @@ exports.updateMe = async (req, res, next) => {
   }
 };
 
+// * Deleting the current user
 exports.deleteMe = async (req, res, next) => {
   try {
     if (!req.body.currentPassword)

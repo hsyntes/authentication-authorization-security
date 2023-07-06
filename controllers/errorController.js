@@ -1,5 +1,6 @@
 const ErrorProvider = require("../classes/ErrorProvider");
 
+// * Modifying the error object according to the the name of error
 const validatorError = (err) => {
   let messages = err.message.split(",");
 
@@ -26,6 +27,7 @@ const jsonWebTokenError = () =>
 const tokenExpiredError = () =>
   new ErrorProvider(401, "fail", "Authentication has expired. Log in again.");
 
+// * Export the new error object to handle error globally
 module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === "production") {
     if (err.name === "ValidationError") err = validatorError(err);
