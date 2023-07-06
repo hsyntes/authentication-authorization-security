@@ -13,8 +13,6 @@ const validatorError = (err) => {
 };
 
 const uniqueError = (err) => {
-  console.log(err);
-
   if (err.keyPattern.hasOwnProperty("username"))
     return new ErrorProvider(409, "fail", "This user is already in use.");
 
