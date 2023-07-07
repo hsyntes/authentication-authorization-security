@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 const jsonwebtoken = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
-const { sendError } = require("../utils/sendError");
+const sendError = require("../utils/sendError");
 
 const sendToken = (res, statusCode, user) => {
   // * Generate token

@@ -6,7 +6,7 @@ const expressMongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const hpp = require("hpp");
 const xss = require("xss-clean");
-const { sendError } = require("./utils/sendError");
+const sendError = require("./utils/sendError");
 const errorController = require("./controllers/errorController");
 
 // * Call the Express.js

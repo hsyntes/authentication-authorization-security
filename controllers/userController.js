@@ -1,7 +1,7 @@
 // const ErrorProvider = require("../classes/ErrorProvider");
 const User = require("../models/userModel");
 const filterBody = require("../utils/filterBody");
-const { sendError } = require("../utils/sendError");
+const sendError = require("../utils/sendError");
 
 exports.getUsers = async (req, res, next) => {
   try {
