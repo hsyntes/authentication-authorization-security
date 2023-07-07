@@ -1,7 +1,6 @@
-const ErrorProvider = require("../classes/ErrorProvider");
+// const ErrorProvider = require("../classes/ErrorProvider");
 
-const sendError = (statusCode, status, message) =>
-  new ErrorProvider(statusCode, status, message);
+const { sendError } = require("../utils/sendError");
 
 // * Modifying the error object according to the the name of error
 const valdationError = (err) => {

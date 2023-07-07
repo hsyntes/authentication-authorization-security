@@ -1,6 +1,7 @@
-const ErrorProvider = require("../classes/ErrorProvider");
+// const ErrorProvider = require("../classes/ErrorProvider");
 const User = require("../models/userModel");
 const filterBody = require("../utils/filterBody");
+const { sendError } = require("../utils/sendError");
 
 exports.getUsers = async (req, res, next) => {
   try {
@@ -50,7 +51,7 @@ exports.getUser = async (req, res, next) => {
       "+active"
     );
 
-    if (!user) return next(new ErrorProvider(404, "fail", "User not found."));
+    if (!user) return next(sendError(404, "fail", "User not found."));
 
     if (!user.active)
       return res.status(200).json({
@@ -73,9 +74,7 @@ exports.getUser = async (req, res, next) => {
 exports.deactivateMe = async (req, res, next) => {
   try {
     if (!req.body.currentPassword)
-      return next(
-        new ErrorProvider(403, "fail", "Please confirm your password.")
-      );
+      return next(sendError(403, "fail", "Please confirm your password."));
 
     if (
       !(await req.user.isPasswordCorrect(
@@ -83,7 +82,7 @@ exports.deactivateMe = async (req, res, next) => {
         req.user.password
       ))
     )
-      return next(new ErrorProvider(401, "fail", "Wrong password."));
+      return next(sendError(401, "fail", "Wrong password."));
 
     req.user.active = false;
 
@@ -102,9 +101,7 @@ exports.deactivateMe = async (req, res, next) => {
 exports.updateMe = async (req, res, next) => {
   try {
     if (req.body.password || req.body.passwordConfirm || req.body.role)
-      return next(
-        new ErrorProvider(400, "fail", "You cannot update these fields.")
-      );
+      return next(sendError(400, "fail", "You cannot update these fields."));
 
     const filteredBody = filterBody(req.body, [
       "firstname",
@@ -116,7 +113,7 @@ exports.updateMe = async (req, res, next) => {
     for (const key of Object.keys(req.body))
       if (!Object.keys(filteredBody).includes(key))
         return next(
-          new ErrorProvider(
+          sendError(
             400,
             "fail",
             "You are not allowed to update this/these field(s)."
@@ -143,9 +140,7 @@ exports.updateMe = async (req, res, next) => {
 exports.deleteMe = async (req, res, next) => {
   try {
     if (!req.body.currentPassword)
-      return next(
-        new ErrorProvider(403, "fail", "Please confirm your password.")
-      );
+      return next(sendError(403, "fail", "Please confirm your password."));
 
     if (
       !(await req.user.isPasswordCorrect(
@@ -153,7 +148,7 @@ exports.deleteMe = async (req, res, next) => {
         req.user.password
       ))
     )
-      return next(new ErrorProvider(401, "fail", "Wrong password."));
+      return next(sendError(401, "fail", "Wrong password."));
 
     await User.findByIdAndDelete(req.user._id);
 

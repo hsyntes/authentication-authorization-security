@@ -1,8 +1,9 @@
-const ErrorProvider = require("../classes/ErrorProvider");
+// const ErrorProvider = require("../classes/ErrorProvider");
 const User = require("../models/userModel");
 const jsonwebtoken = require("jsonwebtoken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
+const { sendError } = require("../utils/sendError");
 
 const sendToken = (res, statusCode, user) => {
   // * Generate token
@@ -56,7 +57,7 @@ exports.login = async (req, res, next) => {
 
     if (!email || !req.body.password)
       return next(
-        new ErrorProvider(
+        sendError(
           403,
           "fail",
           "Type your email address or username and password"
@@ -65,8 +66,7 @@ exports.login = async (req, res, next) => {
 
     let user;
 
-    if (!user)
-      return next(new ErrorProvider(404, "fail", "That user doesn't exist."));
+    if (!user) return next(sendError(404, "fail", "That user doesn't exist."));
 
     // * Allow both email and username to log in
     if (email.includes("@"))
@@ -74,7 +74,7 @@ exports.login = async (req, res, next) => {
     else user = await User.findOne({ username: email }).select("+password");
 
     if (!(await user.isPasswordCorrect(req.body.password, user.password)))
-      return next(new ErrorProvider(401, "fail", "Email or password wrong."));
+      return next(sendError(401, "fail", "Email or password wrong."));
 
     // * If the user's status not active, activate it
     user.active = true;
@@ -93,12 +93,10 @@ exports.forgotPassword = async (req, res, next) => {
     const { email } = req.body;
 
     if (!email)
-      return next(
-        new ErrorProvider(403, "fail", "Please type your email address.")
-      );
+      return next(sendError(403, "fail", "Please type your email address."));
 
     const user = await User.findOne({ email });
-    if (!user) return next(new ErrorProvider(404, "fail", "User not found."));
+    if (!user) return next(sendError(404, "fail", "User not found."));
 
     const passwordResetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
@@ -126,11 +124,7 @@ exports.forgotPassword = async (req, res, next) => {
       await user.save({ validateBeforeSave: false });
 
       return next(
-        new ErrorProvider(
-          500,
-          "fail",
-          "Token couldn't send to your email address."
-        )
+        sendError(500, "fail", "Token couldn't send to your email address.")
       );
     }
   } catch (e) {
@@ -153,14 +147,10 @@ exports.resetPassword = async (req, res, next) => {
     }).select("+password");
 
     if (!user)
-      return next(
-        new ErrorProvider(400, "fail", "Password reset token has expired.")
-      );
+      return next(sendError(400, "fail", "Password reset token has expired."));
 
     if (await user.isPasswordCorrect(req.body.password, user.password))
-      return next(
-        new ErrorProvider(400, "fail", "Password is alredy the same.")
-      );
+      return next(sendError(400, "fail", "Password is alredy the same."));
 
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
@@ -189,11 +179,7 @@ exports.verifyToken = async (req, res, next) => {
 
     if (!token)
       return next(
-        new ErrorProvider(
-          401,
-          "fail",
-          "Couldn't authenticated. Please try to log in."
-        )
+        sendError(401, "fail", "Couldn't authenticated. Please try to log in.")
       );
 
     // * Verifying token
@@ -203,7 +189,7 @@ exports.verifyToken = async (req, res, next) => {
 
     if (!currentUser)
       return next(
-        new ErrorProvider(401, "fail", "You are not logged in. Please log in.")
+        sendError(401, "fail", "You are not logged in. Please log in.")
       );
 
     // * Grand access to the current user.
@@ -221,7 +207,7 @@ exports.restrict =
   (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(
-        new ErrorProvider(
+        sendError(
           403,
           "fail",
           "You do not have permission to perform this action"
@@ -235,12 +221,10 @@ exports.restrict =
 exports.updatePassword = async (req, res, next) => {
   try {
     if (!req.body.currentPassword)
-      return next(
-        new ErrorProvider(403, "fail", "Please confirm your password.")
-      );
+      return next(sendError(403, "fail", "Please confirm your password."));
 
     if (!req.body.password)
-      return next(new ErrorProvider(403, "fail", "Please set a new password."));
+      return next(sendError(403, "fail", "Please set a new password."));
 
     if (
       !(await req.user.isPasswordCorrect(
@@ -248,11 +232,11 @@ exports.updatePassword = async (req, res, next) => {
         req.user.password
       ))
     )
-      return next(new ErrorProvider(401, "fail", "Wrong password."));
+      return next(sendError(401, "fail", "Wrong password."));
 
     if (await req.user.isPasswordCorrect(req.body.password, req.user.password))
       return next(
-        new ErrorProvider(
+        sendError(
           401,
           "fail",
           "The new password cannot be the same with previous password."

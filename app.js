@@ -1,12 +1,13 @@
 const express = require("express");
-const ErrorProvider = require("./classes/ErrorProvider");
+// const ErrorProvider = require("./classes/ErrorProvider");
+const expressRateLimit = require("express-rate-limit");
 const userRoutes = require("./routes/userRoutes");
-const errorController = require("./controllers/errorController");
+const expressMongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const hpp = require("hpp");
 const xss = require("xss-clean");
-const expressRateLimit = require("express-rate-limit");
-const expressMongoSanitize = require("express-mongo-sanitize");
+const { sendError } = require("./utils/sendError");
+const errorController = require("./controllers/errorController");
 
 // * Call the Express.js
 const app = express();
@@ -33,17 +34,17 @@ app.use((req, res, next) => {
 });
 
 // * Security
-app.use(helmet());
-app.use(xss());
-app.use(hpp());
 app.use(expressMongoSanitize());
+app.use(helmet());
+app.use(hpp());
+app.use(xss());
 
 // * Routes
 app.use("/api/v1/users", userRoutes);
 
 // * Error handling for unsupported URLs
 app.all("*", (req, res, next) =>
-  next(new ErrorProvider(404, "fail", `Unsupprted URL: ${req.originalUrl}`))
+  next(sendError(404, "fail", `Unsupprted URL: ${req.originalUrl}`))
 );
 
 // * Globally error handling
