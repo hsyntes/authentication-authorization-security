@@ -288,7 +288,7 @@ exports.updatePassword = async (req, res, next) => {
 // * Sending email reset link to user's email address
 exports.changeEmail = async (req, res, next) => {
   try {
-    const token = req.user.generateEmailResetToken();
+    const emailResetToken = req.user.generateEmailResetToken();
     await req.user.save({ validateBeforeSave: false });
 
     try {
@@ -297,7 +297,7 @@ exports.changeEmail = async (req, res, next) => {
         subject: "Reset Email Address",
         text: `Please click the link to set new email address. ${
           req.protocol
-        }://${req.get("host")}/api/v1/users/reset-email/${token}`,
+        }://${req.get("host")}/api/v1/users/reset-email/${emailResetToken}`,
       });
 
       res.status(200).json({
