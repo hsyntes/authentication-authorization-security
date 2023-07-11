@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const generateResetToken = require("../utils/generateResetToken");
 
 // * Mongoose Schema Structure
 const userSchema = new mongoose.Schema(
@@ -66,6 +67,9 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetTokenExpiresIn: Date,
 
+    emailResetToken: String,
+    emailResetTokenExpiresIn: Date,
+
     role: {
       type: String,
       enum: ["user", "guide", "lead-guide", "admin"],
@@ -103,17 +107,33 @@ userSchema.methods.isPasswordCorrect = async (candidate, password) =>
   await bcrypt.compare(candidate, password);
 
 // * Generating token to reset password
-userSchema.methods.createPasswordResetToken = function () {
-  const passwordResetToken = crypto.randomBytes(32).toString("hex");
+userSchema.methods.generatePasswordResetToken = function () {
+  // const passwordResetToken = crypto.randomBytes(32).toString("hex");
 
-  this.passwordResetToken = crypto
-    .createHash("sha256")
-    .update(passwordResetToken)
-    .digest("hex");
+  // this.passwordResetToken = crypto
+  //   .createHash("sha256")
+  //   .update(passwordResetToken)
+  //   .digest("hex");
 
-  this.passwordResetTokenExpiresIn = Date.now() + 10 * 60 * 1000;
+  // this.passwordResetTokenExpiresIn = Date.now() + 10 * 60 * 1000;
 
-  return passwordResetToken;
+  // return passwordResetToken;
+
+  const { token, resetToken, resetTokenExpiresIn } = generateResetToken();
+
+  this.passwordResetToken = resetToken;
+  this.passwordResetTokenExpiresIn = resetTokenExpiresIn;
+
+  return token;
+};
+
+userSchema.methods.generateEmailResetToken = function () {
+  const { token, resetToken, resetTokenExpiresIn } = generateResetToken();
+
+  this.emailResetToken = resetToken;
+  this.emailResetTokenExpiresIn = resetTokenExpiresIn;
+
+  return token;
 };
 
 const User = mongoose.model("User", userSchema);

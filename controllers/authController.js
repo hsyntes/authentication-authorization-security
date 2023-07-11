@@ -98,7 +98,7 @@ exports.forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) return next(sendError(404, "fail", "User not found."));
 
-    const passwordResetToken = user.createPasswordResetToken();
+    const passwordResetToken = user.generatePasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
     // * Sending email with reset link
@@ -167,6 +167,39 @@ exports.resetPassword = async (req, res, next) => {
   }
 };
 
+// * Resetting email
+exports.resetEmail = async (req, res, next) => {
+  try {
+    const user = await User.findOne({
+      emailResetToken: crypto
+        .createHash("sha256")
+        .update(req.params.emailResetToken)
+        .digest("hex"),
+
+      emailResetTokenExpiresIn: { $gt: Date.now() },
+    });
+
+    // ! 404: Not found
+    if (!user)
+      return next(sendError(404, "fail", "Email reset link has expired."));
+
+    // ! 403: Forbidden
+    if (!req.body.email)
+      return next(sendError(403, "fail", "Please type a valid email address."));
+
+    user.email = req.body.email;
+    await user.save({ validateBeforeSave: false });
+
+    user.emailResetToken = undefined;
+    user.emailResetTokenExpiresIn = undefined;
+
+    sendToken(res, 200, user);
+  } catch (e) {
+    next(e);
+  }
+};
+
+// * Verifying token
 exports.verifyToken = async (req, res, next) => {
   try {
     let token;
@@ -202,7 +235,7 @@ exports.verifyToken = async (req, res, next) => {
 };
 
 // * Role-based access control
-exports.restrict =
+exports.hasPermission =
   (...roles) =>
   (req, res, next) => {
     if (!roles.includes(req.user.role)) {
@@ -250,4 +283,37 @@ exports.updatePassword = async (req, res, next) => {
 
     sendToken(res, 200, req.user);
   } catch (e) {}
+};
+
+// * Sending email reset link to user's email address
+exports.changeEmail = async (req, res, next) => {
+  try {
+    const token = req.user.generateEmailResetToken();
+    await req.user.save({ validateBeforeSave: false });
+
+    try {
+      await sendEmail({
+        to: req.user.email,
+        subject: "Reset Email Address",
+        text: `Please click the link to set new email address. ${
+          req.protocol
+        }://${req.get("host")}/api/v1/users/reset-email/${token}`,
+      });
+
+      res.status(200).json({
+        status: "success",
+        message:
+          "The email reset link was sent to your email address. Please check it.",
+      });
+    } catch (e) {
+      req.user.emailResetToken = undefined;
+      req.user.emailResetTokenExpiresIn = undefined;
+
+      await req.user.save({ validateBeforeSave: false });
+
+      next(e);
+    }
+  } catch (e) {
+    next();
+  }
 };
